@@ -5,7 +5,7 @@ import string
 import time
 
 import theano.tensor as T
-from theano.sandbox.linalg.ops import MatrixInverse as matrix_inverse
+from theano.sandbox.linalg.ops import matrix_inverse
 import numpy as np
 import numpy.random as random
 
@@ -151,7 +151,7 @@ class sparsity_model:
             0 if self.coefficients[ i ] == 0
         '''
         theta = T.sgn( self.coefficients )
-        active_set = []
+        active_set = T.ivector( name = 'active_set' )
         #This corresponds to the gram matrix by dotting the basis vectors by it's transpose
         gram_matrix = T.dot( self.bases.T, self.bases )
         target_correlation = T.dot( self.bases.T, self.x )
@@ -169,13 +169,11 @@ class sparsity_model:
             updated_theta = T.set_subtensor( theta[ candidate ], 1 )
             active_set = active_set + candidate
         
-        active_bases = theano.function( [ self.bases ], [ self.bases[ active_set[ i ] ]
-                                                          for i in range( len( active_set ) ) ] )
+        active_bases = self.bases[ active_set ]
                                                           
-        active_coefficients = theano.function( [ self.coefficients ], [ self.coefficients[ active_set[ i ] ]
-                                                          for i in range( len( active_set ) ) ] )
+        active_coefficients = self.coefficients[ active_set ]
                                                           
-        active_theta = [ updated_theta[ active_set[ i ] ] for i in range( len( active_set ) ) ]
+        active_theta = updated_theta[ active_set ]
         
         new_coefficients = ( matrix_inverse( T.dot( active_bases.T, active_bases ) ) *
                                     ( T.dot( active_bases.T, target_correlation )

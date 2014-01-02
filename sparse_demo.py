@@ -10,7 +10,7 @@ from theano.sandbox.linalg.ops import MatrixInverse as matrix_inverse
 import numpy as np
 import numpy.random as random
 
-from sparse_lib import *
+from Sparse_Coding import *
 
 sample_input = random.rand( 5, 4 )
 
